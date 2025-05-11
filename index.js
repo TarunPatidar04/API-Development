@@ -4,17 +4,27 @@ const studentRoutes = require("./routes/student.routes");
 const dbConnection = require("./config/dbConnect");
 const { MulterError } = require("multer");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const auth = require("./middleware/auth");
 const userRoutes = require("./routes/user.routes");
+const helmet=require("helmet")
 
 const app = express();
 
+// api security
+const limiter = rateLimit({
+  windowMs: 1000 * 60, // 1000 * 60 *15 - 15 mint
+  max: 5, //100,
+  message: "Too many request from this IP, Please try again later",
+});
 // Middleware to parse JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use(cors());
+app.use(limiter);
+app.use(helmet())
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 dbConnection();
